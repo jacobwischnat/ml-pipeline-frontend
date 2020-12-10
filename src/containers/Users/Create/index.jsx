@@ -1,10 +1,14 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, {useState} from 'react';
+
 import {
     Button,
     TextField,
     Typography
 } from '@material-ui/core';
+import styled from 'styled-components';
+import {useHistory} from 'react-router-dom';
+import {CircleLoader} from 'react-spinners';
+import {useUserService} from '../../../services/users';
 
 const Wrapper = styled.div`
     padding: 10px 10px 10px 10px;
@@ -19,14 +23,35 @@ const Form = styled.div`
     justify-content: space-between;
 `;
 
+const Error = styled.strong`
+    font-weight: bold;
+    color: red;
+`;
+
 const Create = () => {
+    const history = useHistory();
+    const {invite, loading, error} = useUserService();
+    const [email, setEmail] = useState('');
+
+    const handleEmail = ({target: {value}}) => setEmail(value);
+
     return <Wrapper>
         <Typography variant="h4">Create Invite</Typography>
         <Form>
             <TextField
+                value={email}
                 variant="outlined"
+                onChange={handleEmail}
                 label="Email Address"></TextField>
-            <Button color="secondary" variant="contained">Send Invite</Button>
+            { error && <Error>{error}</Error> }
+            {
+                loading
+                    ? <CircleLoader loading={loading}/>
+                    : <Button
+                        color="secondary"
+                        variant="contained"
+                        onClick={() => invite(email).then(() => history.push('/app/users'))}>Send Invite</Button>
+            }
         </Form>
     </Wrapper>
 };

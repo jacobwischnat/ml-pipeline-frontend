@@ -33,19 +33,9 @@ const Users = () => {
         },
         {
             label: 'Status',
-            field: 'status'
+            field: 'active'
         }
     ];
-    const data = [
-        {
-            email: 'jakedublya@gmail.com',
-            status: 'invited'
-        },
-        {
-            email: 'jakeweewoo@xparcel.com',
-            status: 'active',
-        },
-    ]
 
     return <Wrapper>
         <Flex>
@@ -58,7 +48,7 @@ const Users = () => {
         <Table
             options={{canDelete: true}}
             headings={headings}
-            data={data}/>
+            data={users}/>
     </Wrapper>;
 };
 

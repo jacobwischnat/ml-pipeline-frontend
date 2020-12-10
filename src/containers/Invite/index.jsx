@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {mdiPipe} from '@mdi/js';
 import {useAuthService} from '../../services/auth';
 import React, {useState} from 'react';
-import {useLocation, Redirect} from 'react-router-dom';
+import {Redirect, useParams} from 'react-router-dom';
 import {TextField, Typography, Button} from '@material-ui/core';
 
 const Wrapper = styled.div`
@@ -15,12 +15,12 @@ const Wrapper = styled.div`
     justify-content: space-around;
 `;
 
-const LoginBox = styled.div`
+const InviteBox = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     width: 250px;
-    height: 200px;
+    height: 300px;
     border: 1px solid #ccc;
     margin-bottom: 150px;
     padding: 10px 10px 10px;
@@ -34,26 +34,31 @@ const Banner = styled.div`
     justify-content: space-between;
 `;
 
-const Login = () => {
-    const location = useLocation();
-    const {token, authenticate} = useAuthService();
+const Invite = () => {
+    const {uuid} = useParams();
+    const {token, accept} = useAuthService();
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [password2, setPassword2] = useState('');
 
+    const handleName = ({target: {value}}) => setName(value);
     const handleEmail = ({target: {value}}) => setEmail(value);
     const handlePassword = ({target: {value}}) => setPassword(value);
+    const handlePassword2 = ({target: {value}}) => setPassword2(value);
 
     return <Wrapper>
-        {token && <Redirect to={
-            location.pathname === '/'
-                ? '/app'
-                : location.pathname
-        }/>}
+        {token && <Redirect to="/app"/>}
         <Banner>
             <Typography variant="h4">ML Pipeline</Typography>
             <Icon path={mdiPipe} size={2.5}/>
         </Banner>
-        <LoginBox>
+        <InviteBox>
+            <TextField
+                variant="outlined"
+                label="Name"
+                value={name}
+                onChange={handleName}></TextField>
             <TextField
                 variant="outlined"
                 label="Email"
@@ -65,12 +70,19 @@ const Login = () => {
                 type="password"
                 value={password}
                 onChange={handlePassword}></TextField>
+            <TextField
+                variant="outlined"
+                label="Password Confirm"
+                type="password"
+                value={password2}
+                onChange={handlePassword2}></TextField>
             <Button
                 color="primary"
                 variant="contained"
-                onClick={() => authenticate(email, password)}>Login</Button>
-        </LoginBox>
+                disabled={(!name || !password || !password2 || password !== password2)}
+                onClick={() => accept(name, email, password, uuid)}>Accept Invitation</Button>
+        </InviteBox>
     </Wrapper>;
 }
 
-export default Login
+export default Invite;

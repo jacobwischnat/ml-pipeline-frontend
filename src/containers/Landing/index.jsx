@@ -1,6 +1,8 @@
 import {
     mdiMenu,
     mdiServer,
+    mdiAccount,
+    mdiExitRun,
     mdiChevronUp,
     mdiAccountBox,
     mdiChevronDown,
@@ -19,6 +21,7 @@ import {
     List,
     Drawer,
     AppBar,
+    Avatar,
     Toolbar,
     ListItem,
     Collapse,
@@ -27,14 +30,19 @@ import {
     ListItemIcon,
     ListSubheader,
 } from '@material-ui/core';
+import {StyledMenu, StyledMenuItem} from '../../components/StyledMenu';
 
 import Icon from '@mdi/react';
 import styled from 'styled-components';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Switch, Route, useHistory} from 'react-router-dom';
 
 import Users from '../Users';
 import CreateUser from '../Users/Create';
+import {useUserService} from '../../services/users';
+
+import Account from '../Account';
+import CreateAccount from '../Account/Create';
 
 const Wrapper = styled.div`
     flexGrow: 1;
@@ -65,10 +73,24 @@ const Item = ({name, icon, onClick, children, onClose}) => {
 
 const Landing = () => {
     const history = useHistory();
+    const {avatar, user, account, getMe} = useUserService();
     const [open, setOpen] = useState(false);
+    const [anchor, setAnchor] = useState(null);
 
     const go = path => () => history.push(path);
+
     const onClose = () => setOpen(false);
+
+    const handleUserOpen = ({target}) => setAnchor(target);
+    const handleUserClose = () => setAnchor(null);
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        history.push('/');
+    };
+
+    useEffect(() => {
+        getMe();
+    }, []);
 
     return <React.Fragment>
         <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>
@@ -83,7 +105,7 @@ const Landing = () => {
                     <Item
                         name="Accounts"
                         icon={mdiAccountBox}
-                        onClick={null}
+                        onClick={go('/app/account')}
                         onClose={onClose}/>
                     <Item
                         name="Projects"
@@ -117,14 +139,50 @@ const Landing = () => {
                         onClick={go("/app")}
                         style={{flexGrow: '1', cursor: 'pointer'}}
                         >ML Pipeline</Typography>
+                    <Avatar
+                        src={avatar ? `/api/file/${avatar}` : null}
+                        style={{cursor: 'pointer'}}
+                        onClick={handleUserOpen}
+                        />
+                    <StyledMenu
+                        keepMounted
+                        open={!!anchor}
+                        anchorEl={anchor}
+                        onClose={handleUserClose}>
+                        <StyledMenuItem>
+                            <ListItemIcon>
+                            <Avatar
+                                style={{width: '25px', height: '25px'}}
+                                src={avatar ? `/api/file/${avatar}` : null}/>
+                            </ListItemIcon>
+                            <ListItemText>{user?.name} (User)</ListItemText>
+                        </StyledMenuItem>
+                        <StyledMenuItem>
+                            <ListItemIcon>
+                                <Avatar
+                                    style={{width: '25px', height: '25px'}}
+                                    src={account?.icon ? `/api/file/${account.icon}` : null}/>
+                            </ListItemIcon>
+                            <ListItemText>{account?.name} (Account)</ListItemText>
+                        </StyledMenuItem>
+                        <StyledMenuItem
+                            onClick={() => handleLogout()}>
+                            <ListItemIcon>
+                                <Icon path={mdiExitRun} size={1}/>
+                            </ListItemIcon>
+                            <ListItemText>Logout</ListItemText>
+                        </StyledMenuItem>
+                    </StyledMenu>
                 </Toolbar>
             </AppBar>
             <Switch>
                 <Route path="/app/users" exact component={Users}/>
                 <Route path="/app/users/create" exact component={CreateUser}/>
+                <Route path="/app/account" exact component={Account}/>
+                <Route path="/app/account/create" exact component={CreateAccount}/>
             </Switch>
         </Wrapper>
     </React.Fragment>
 };
 
-export default Landing;
+export default () => <Landing/>;
