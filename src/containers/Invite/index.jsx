@@ -1,10 +1,12 @@
 import Icon from '@mdi/react'
 import styled from 'styled-components';
-import {mdiPipe} from '@mdi/js';
+import {icons} from '../../constants';
 import {useAuthService} from '../../services/auth';
 import React, {useState} from 'react';
 import {Redirect, useParams} from 'react-router-dom';
 import {TextField, Typography, Button} from '@material-ui/core';
+
+const {mdiPipe} = icons;
 
 const Wrapper = styled.div`
     width: 100vw;

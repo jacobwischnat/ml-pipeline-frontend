@@ -1,3 +1,4 @@
+const WebpackCopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
@@ -11,7 +12,7 @@ module.exports = {
         filename: 'bundle.js'
     },
     resolve: {
-        extensions: ['.js', '.jsx'],
+        extensions: ['.js', '.jsx', '.css'],
         modules: ['node_modules']
     },
     module: {
@@ -19,13 +20,17 @@ module.exports = {
             {
                 test: /\.jsx?$/,
                 loader: 'babel-loader'
+            },
+            {
+                test: /\.css$/,
+                use: ['css-loader', 'style-loader']
             }
         ]
     },
     plugins: [
         new HtmlWebpackPlugin({
             title: description,
-            template: path.resolve(__dirname, './assets/index.html'),
+            template: path.resolve(__dirname, './assets/index.html')
         }),
     ]
 }

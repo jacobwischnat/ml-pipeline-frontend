@@ -1,4 +1,6 @@
-import {
+import {icons} from '../../constants';
+
+const {
     mdiMenu,
     mdiServer,
     mdiAccount,
@@ -15,7 +17,7 @@ import {
     mdiSourceRepository,
     mdiExpandAllOutline,
     mdiSwapVerticalVariant,
-} from '@mdi/js';
+} = icons;
 
 import {
     List,
@@ -44,8 +46,13 @@ import {useUserService} from '../../services/users';
 import Account from '../Account';
 import CreateAccount from '../Account/Create';
 
+import Repositories from '../Repositories';
+
+import Project from '../Project';
+
 const Wrapper = styled.div`
     flexGrow: 1;
+    height: 100%;
 `;
 
 const Item = ({name, icon, onClick, children, onClose}) => {
@@ -110,11 +117,15 @@ const Landing = () => {
                     <Item
                         name="Projects"
                         icon={mdiScriptOutline}
-                        onClick={null}
+                        onClick={go('/app/project')}
                         onClose={onClose}/>
 
                     <ListSubheader>Pipeline</ListSubheader>
-                    <Item name="Data Sources" icon={mdiSourceRepository} onClick={null}/>
+                    <Item
+                        name="Repositories"
+                        icon={mdiSourceRepository}
+                        onClick={go('/app/repositories/instance')}
+                        onClose={onClose}/>
                     <Item name="Data Sets" icon={mdiImageMultiple} onClick={null}>
                         <Item name="Manage" icon={mdiExpandAllOutline} onClick={null}/>
                         <Item name="Cleaning" icon={mdiImageRemove} onClick={null}/>
@@ -180,6 +191,8 @@ const Landing = () => {
                 <Route path="/app/users/create" exact component={CreateUser}/>
                 <Route path="/app/account" exact component={Account}/>
                 <Route path="/app/account/create" exact component={CreateAccount}/>
+                <Route path="/app/repositories" component={Repositories}/>
+                <Route path="/app/project" exact component={Project}/>
             </Switch>
         </Wrapper>
     </React.Fragment>

@@ -8,31 +8,45 @@ import {
     TableCell,
     TableContainer
 } from '@material-ui/core';
+import lodash from 'lodash';
+import PropagateLoader from 'react-spinners/PropagateLoader';
 
-const SimpleTable = ({options, headings, data}) => {
+const SimpleTable = ({loading, options, headings, data}) => {
     return <TableContainer>
         <Table>
             <TableHead>
                 <TableRow>
-                    { (headings || []).map(({label}, index) => <TableCell key={index}>{label}</TableCell>) }
-                    { options?.canDelete && <TableCell></TableCell> }
+                    { (headings || [])
+                        .filter(value => value)
+                        .filter(({hideColumn}) => !hideColumn)
+                        .map(({label, style}, index) => <TableCell key={index} style={style}>{label || ''}</TableCell>) }
                 </TableRow>
             </TableHead>
             <TableBody>
+                { loading && <TableRow>
+                    <TableCell align="center" colSpan={headings.length} style={{height: '20px'}}>
+                        <PropagateLoader height={4} width={100} loading={true}/><br/>
+                        &nbsp;&nbsp;&nbsp;&nbsp;Loading
+                    </TableCell>
+                </TableRow> }
                 {
-                    (data || []).map((row, index) => <TableRow key={index}>
-                        { (headings || []).map(({field, render}, index) => {
-                            if (render) {
-                                return <TableCell key={index}>{render(row)}</TableCell>;
-                            } else return <TableCell key={index}>{row[field]}</TableCell>;
-                        }) }
-                        { options?.canDelete && <TableCell>
-                            <Button
-                                color="secondary"
-                                size="small"
-                                variant="contained">Delete</Button>
-                        </TableCell>}
-                    </TableRow>)
+                    !loading && (data || [])
+                        .filter(value => value)
+                        .map((row, index) => <TableRow key={index}>
+                            { (headings || [])
+                                .filter(value => !!value)
+                                .filter(({hideColumn}) => !hideColumn)
+                                .map(({field, style, transform, blankWhen, render}, index) => {
+                                    if (blankWhen && blankWhen(row)) return <TableCell key={index}></TableCell>;
+                                    else if (render) return <TableCell key={index} style={style}>{render(row)}</TableCell>;
+                                    else return <TableCell key={index}>{
+                                        transform
+                                            ? transform(lodash.get(row, field))
+                                            : lodash.get(row, field)
+                                    }</TableCell>;
+                                })
+                            }
+                        </TableRow>)
                 }
             </TableBody>
         </Table>
